@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ro" class="scroll-smooth">
+<html lang="ro" class="scroll-smooth envelope-locked">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -99,6 +99,97 @@
       font-variant-numeric: lining-nums tabular-nums;
       font-feature-settings: "lnum" 1, "tnum" 1;
       line-height: 1;
+    }
+
+    /* Lock the landing view so iOS in-app browsers cannot scroll the invitation underneath. */
+    html.envelope-locked, body.envelope-locked {
+      overflow: hidden !important;
+      overscroll-behavior: none;
+      height: 100%;
+    }
+    body.envelope-locked {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      touch-action: manipulation;
+    }
+    #envelope-screen {
+      overflow: hidden;
+      overscroll-behavior: none;
+      touch-action: manipulation;
+      min-height: 100svh;
+      max-height: 100dvh;
+    }
+
+    /* Compact and balanced invitation-opening prompt across narrow phone screens. */
+    .envelope-open-prompt {
+      margin-top: clamp(24px, 5svh, 45px);
+      max-width: 100%;
+      padding: 0 12px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .envelope-open-prompt button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 13px;
+      padding: 8px 5px;
+      max-width: 100%;
+      color: #2E4E43;
+      background: transparent;
+      border: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      transition: color .2s ease, opacity .2s ease;
+    }
+    .envelope-open-prompt button:hover { color: #1A322E; }
+    .envelope-open-prompt .prompt-rule {
+      height: 1px;
+      flex: 0 0 22px;
+      background: rgba(46, 78, 67, .47);
+    }
+    .envelope-open-prompt .prompt-copy {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      white-space: nowrap;
+    }
+    /* Both invitation prompt lines use exactly the same typeface and styling. */
+    .envelope-open-prompt .prompt-heading,
+    .envelope-open-prompt .prompt-subtitle {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 1.65;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    @media (max-width: 560px) {
+      .envelope-open-prompt .prompt-heading,
+      .envelope-open-prompt .prompt-subtitle {
+        font-size: 10px;
+        letter-spacing: .13em;
+      }
+      .envelope-open-prompt .prompt-rule { flex-basis: 16px; }
+      .envelope-open-prompt button { gap: 10px; }
+    }
+    @media (max-width: 380px) {
+      .envelope-open-prompt .prompt-heading,
+      .envelope-open-prompt .prompt-subtitle {
+        font-size: 9px;
+        letter-spacing: .11em;
+      }
+      .envelope-open-prompt .prompt-rule { flex-basis: 13px; }
+    }
+    @media (max-height: 650px) {
+      #envelope-screen > .text-center.mb-10 { margin-bottom: 20px; }
+      .envelope-open-prompt { margin-top: 18px; }
     }
 
     /* Canvas particule verzi ambientale vizibil atât peste plic, cât și peste invitație */
@@ -316,7 +407,7 @@
     }
   </style>
 </head>
-<body class="selection:bg-gold/20 selection:text-charcoal relative">
+<body class="selection:bg-gold/20 selection:text-charcoal relative envelope-locked">
 
   <!-- Canvas discret pentru particule aurii plutitoare -->
   <canvas id="petals-canvas"></canvas>
@@ -490,9 +581,9 @@
 
           <!-- Monograma aurie ambosată: C | D -->
           <g filter="url(#sealEmboss)">
-            <text x="43.5" y="62.5" text-anchor="middle" font-family="Cinzel, 'Cormorant Garamond', serif" font-size="21" font-weight="500" fill="url(#sealGold)">C</text>
-            <text x="76.5" y="62.5" text-anchor="middle" font-family="Cinzel, 'Cormorant Garamond', serif" font-size="21" font-weight="500" fill="url(#sealGold)">D</text>
-            <line x1="60" y1="40" x2="60" y2="67" stroke="#C7AF77" stroke-width="1"/>
+            <text x="43.5" y="56.5" text-anchor="middle" font-family="Cinzel, 'Cormorant Garamond', serif" font-size="21" font-weight="500" fill="url(#sealGold)">C</text>
+            <text x="76.5" y="56.5" text-anchor="middle" font-family="Cinzel, 'Cormorant Garamond', serif" font-size="21" font-weight="500" fill="url(#sealGold)">D</text>
+            <line x1="60" y1="34" x2="60" y2="61" stroke="#C7AF77" stroke-width="1"/>
 
             <!-- Ramura de laur -->
             <use href="#laurelHalf"/>
@@ -504,12 +595,15 @@
 
     </div>
 
-    <!-- Îndrumare subtilă -->
-    <div class="mt-12 text-center">
-      <button onclick="openEnvelope()" class="text-xs uppercase tracking-[0.3em] text-[#2E4E43] hover:text-[#1A322E] transition-colors inline-flex items-center gap-2.5 py-2 px-4">
-        <span class="w-6 h-[1px] bg-[#2E4E43]/60"></span>
-        <span>Atingeți sigiliul pentru a deschide</span>
-        <span class="w-6 h-[1px] bg-[#2E4E43]/60"></span>
+    <!-- Îndrumare echilibrată, lizibilă și pe ecrane înguste -->
+    <div class="envelope-open-prompt">
+      <button type="button" onclick="openEnvelope()" aria-label="Atingeți sigiliul pentru a deschide invitația">
+        <span class="prompt-rule" aria-hidden="true"></span>
+        <span class="prompt-copy">
+          <span class="prompt-heading">Atingeți sigiliul</span>
+          <span class="prompt-subtitle">pentru a deschide invitația</span>
+        </span>
+        <span class="prompt-rule" aria-hidden="true"></span>
       </button>
     </div>
   </section>
@@ -714,10 +808,17 @@
 
         setTimeout(() => {
           envelopeScreen.style.display = "none";
-          window.scrollTo({ top: 0, behavior: "smooth" });
+          document.documentElement.classList.remove("envelope-locked");
+          document.body.classList.remove("envelope-locked");
+          window.scrollTo({ top: 0, behavior: "instant" });
         }, 850);
       }, 1350);
     }
+
+    // Prevent elastic scrolling on the envelope in Safari/Viber, without blocking taps.
+    document.getElementById("envelope-screen").addEventListener("touchmove", (event) => {
+      if (document.body.classList.contains("envelope-locked")) event.preventDefault();
+    }, { passive: false });
 
     // -------------------------------------------------------------
     // 2. Cronometru Live (19 Iunie 2027, ora 18:00, Chișinău UTC+3)
@@ -764,13 +865,27 @@
     const ctx = canvas.getContext("2d");
     let particles = [];
 
+    // iOS and in-app browsers can fire `resize` when their address bar moves.
+    // Keep existing particles in place when only the viewport height changes.
+    let particleViewportWidth = window.innerWidth;
+    let particleViewportHeight = window.innerHeight;
+
     function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      particleViewportWidth = window.innerWidth;
+      particleViewportHeight = window.innerHeight;
+      canvas.width = particleViewportWidth;
+      canvas.height = particleViewportHeight;
     }
     window.addEventListener("resize", () => {
-      resizeCanvas();
-      initParticles();
+      const newWidth = window.innerWidth;
+      const newHeight = window.innerHeight;
+      if (newWidth !== particleViewportWidth) {
+        resizeCanvas();
+        initParticles(); // Re-layout only when changing phone orientation / width.
+      } else if (Math.abs(newHeight - particleViewportHeight) > 2) {
+        particleViewportHeight = newHeight;
+        canvas.height = newHeight; // Preserve every particle's x/y instead of teleporting.
+      }
     });
     resizeCanvas();
 
